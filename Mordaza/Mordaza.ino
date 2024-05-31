@@ -233,26 +233,21 @@ float get_corriente(int n_muestras)
 //  voltage=voltage/n_muestras;
 //  return(voltage);
 //}
-//calibracion 29/05/2024
-
-//sensor corriente
-
-float sensibilidad=0.105;                       //sensibilidad en V/A para nuestro sensor
-float offset=0.176;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
-
+//calibracion 29/05/2024 sensor corriente
+float sensibilidad=0.105;                       //sensibilidad en V/A para nuestro sensor 0.105
+float offset=0.136;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
+                                               // calibracion base 0.176
 void setup() {
-  
-  Serial.begin(9600);
+    Serial.begin(9600);
 }
 
 void loop() {
-  
-  float Ip=get_corriente();                     //obtenemos la corriente pico
-//  float Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
-//  float P=Irms*220.0;                         // P=IV watts
+    float Ip=get_corriente();                     //obtenemos la corriente pico
   Serial.print("Ip: ");
   Serial.print(Ip,3);
   Serial.println("A");
+//  float Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
+//  float P=Irms*220.0;                         // P=IV watts
 //  Serial.print(" Irms: ");
 //  Serial.print(Irms,3);
 //  Serial.print("A, Potencia: ");
@@ -261,15 +256,13 @@ void loop() {
   delay(500);     
 }
 
-float get_corriente()
-{
+float get_corriente() {
   float voltajesensor;
   float corriente=0;
   long tiempo=millis();
   float Imax=0;
   float Imin=0;
-  while(millis()-tiempo<500)                  //realizamos mediciones durante 0.5 segundos
-  { 
+  while(millis()-tiempo<500) {                 //realizamos mediciones durante 0.5 segundos
     voltajesensor = analogRead(A0) * (5.0 / 1023.0);                          //lectura del sensor
     corriente=0.9*corriente+0.1*((voltajesensor-2.527)/sensibilidad);         //Ecuación  para obtener la corriente
     if(corriente>Imax)Imax=corriente;
