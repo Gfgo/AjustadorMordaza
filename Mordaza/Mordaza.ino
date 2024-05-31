@@ -180,99 +180,11 @@ void oled(){
   u8g2.sendBuffer(); // Envia el contenido del buffer a la pantalla   
   }
 
+////////// velocidad lineal 31/05/2024+corriente ok
 
-  float Sensibilidad=0.105; //sensibilidad en Voltios 0.100 para 20A
-
-void setup() {
-  
-  Serial.begin(9600);
-}
-
-void loop() {
-  
-  float I=get_corriente(500);//obtenemos la corriente promedio de 500 muestras 
-  Serial.print("Corriente: ");
-  Serial.println(I,3); 
-  delay(100);     
-}
-
-float get_corriente(int n_muestras)
-{
-  float voltajeSensor;
-  float corriente=0;
-  for(int i=0;i<n_muestras;i++)
-  {
-    voltajeSensor = analogRead(A0) * (5.0 / 1023.0);////lectura del sensor
-    corriente=corriente+(voltajeSensor-2.5)/Sensibilidad; //Ecuación  para obtener la corriente
-  }
-  corriente=corriente/n_muestras;
-  return(corriente); -0.03
-} //calibracion 2.496   1a 2.391 1.05 2.388   2.391-2.496 =-0.105
-
-//void setup() {
-//  
-//  Serial.begin(9600);
-//}
-//
-//void loop() {
-//  
-//  float voltajeSensor =get_voltage(10000);//obtenemos voltaje del sensor(10000 muestras) 
-//  Serial.print("Voltaje del sensor: ");
-//  Serial.println(voltajeSensor ,3);     
-//}
-//
-//
-//float get_voltage(int n_muestras)
-//{
-//  float voltage=0;
-//  
-//  for(int i=0;i<n_muestras;i++)
-//  {
-//    voltage =voltage+analogRead(A0) * (5.0 / 1023.0);    
-//  }
-//  voltage=voltage/n_muestras;
-//  return(voltage);
-//}
-//calibracion 29/05/2024 sensor corriente
 float sensibilidad=0.105;                       //sensibilidad en V/A para nuestro sensor 0.105
 float offset=0.136;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
-                                               // calibracion base 0.176
-void setup() {
-    Serial.begin(9600);
-}
-
-void loop() {
-    float Ip=get_corriente();                     //obtenemos la corriente pico
-  Serial.print("Ip: ");
-  Serial.print(Ip,3);
-  Serial.println("A");
-//  float Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
-//  float P=Irms*220.0;                         // P=IV watts
-//  Serial.print(" Irms: ");
-//  Serial.print(Irms,3);
-//  Serial.print("A, Potencia: ");
-//  Serial.print(P,3);  
-//  Serial.println("W");
-  delay(500);     
-}
-
-float get_corriente() {
-  float voltajesensor;
-  float corriente=0;
-  long tiempo=millis();
-  float Imax=0;
-  float Imin=0;
-  while(millis()-tiempo<500) {                 //realizamos mediciones durante 0.5 segundos
-    voltajesensor = analogRead(A0) * (5.0 / 1023.0);                          //lectura del sensor
-    corriente=0.9*corriente+0.1*((voltajesensor-2.527)/sensibilidad);         //Ecuación  para obtener la corriente
-    if(corriente>Imax)Imax=corriente;
-    if(corriente<Imin)Imin=corriente;
-  }
-  return(((Imax-Imin)/2)-offset);
-}
-
-////////// velocidad lineal 31/05/2024
-
+                                                // calibracion base 0.176
 int encoder = 2;                //Pin 2, donde se conecta el encoder       
 unsigned int rpm = 0;           //Revoluciones por minuto calculadas.
 float vel = 0;                  //Velocidad en [Km/h]
@@ -281,21 +193,22 @@ unsigned long tant = 0;         //Tiempo anterior
 unsigned int muescas = 6;       //Número de muescas que tiene el disco del encoder.
 const int diam = 23.94;         //Diámetro de la rueda pequeña[mm]
 static volatile unsigned long debounce = 0; //Tiempo del rebote.
-
-void setup(){
-   Serial.begin(9600);   
-   pinMode(encoder, INPUT); 
-   attachInterrupt(digitalPinToInterrupt(encoder), inter, RISING);  
-   pulsos  = 0;
-   rpm = 0;
-   tant = 0;
+      
+void setup() {
+  Serial.begin(9600);
+  pinMode(encoder, INPUT); 
+  attachInterrupt(digitalPinToInterrupt(encoder), inter, RISING);  
+  pulsos  = 0;
+  rpm = 0;
+  tant = 0;
   Serial.print("Seconds ");
   Serial.print("RPM ");
   Serial.print("Pulsos  ");
-  Serial.println("vel[Km/h]");}
+  Serial.println("vel[Km/h]");
+}
 
-void loop(){
-   if (millis() - tant >= 1000){                                //Se actualiza cada segundo
+void loop() {
+  if (millis() - tant >= 1000){                                //Se actualiza cada segundo
       noInterrupts();                                           //Desconectamos la interrupción 
       rpm = (60 * 1000 / muescas )/ (millis() - tant)* pulsos ; //Calculamos las revoluciones por minuto
       vel = rpm * 3.141592 * diam * 60 / 1000000;               //Cálculo velocidad en [Km/h] 
@@ -306,13 +219,38 @@ void loop(){
       Serial.println(vel,2); 
       pulsos  = 0;                                            //Inicializamos los pulsos.
       interrupts();                                           //Reiniciamos la interrupción
-   }
-} //Fin loop
-
-
-void inter(){  //Funcin interrupcion
-  if( digitalRead (encoder) && (micros()-debounce > 500) && digitalRead (encoder) ) { 
-        //comprueba encoder tiempo es superior a 1000 microsegundos
-      debounce = micros(); // Almacena el tiempo para comprobar de rebote
-      pulsos ++;}  
+  float Ip=get_corriente();                                   //obtenemos la corriente pico
+  Serial.print("Ip: ");                                       //Visualizar resultados
+  Serial.print(Ip,3);
+  Serial.println("A");
+//  float Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
+//  float P=Irms*220.0;                         // P=IV watts
+//  Serial.print(" Irms: ");
+//  Serial.print(Irms,3);
+//  Serial.print("A, Potencia: ");
+//  Serial.print(P,3);  
+//  Serial.println("W");
+  }     
 }
+
+float get_corriente() {     //-------------------------------Funcion leo corriente
+  float voltajesensor;
+  float corriente=0;
+  long tiempo=millis();
+  float Imax=0;
+  float Imin=0;
+  while(millis()-tiempo<500)  {                  //realizamos mediciones durante 0.5 segundos
+    voltajesensor = analogRead(A0) * (5.0 / 1023.0);                          //lectura del sensor
+    corriente=0.9*corriente+0.1*((voltajesensor-2.527)/sensibilidad);         //Ecuación  para obtener la corriente
+    if(corriente>Imax)Imax=corriente;
+    if(corriente<Imin)Imin=corriente;
+  }
+  return(((Imax-Imin)/2)-offset);
+}                         //----------------------------------Fin leo corriente
+
+void inter(){  //------------------------------------------Funcion interrupcion
+  if( digitalRead (encoder) && (micros()-debounce > 500) && digitalRead (encoder) ) { 
+  //comprueba encoder tiempo es superior a 1000 microsegundos
+  debounce = micros(); // Almacena el tiempo para comprobar de rebote
+  pulsos ++;}  
+}             //------------------------------------------Fin interrupcion
