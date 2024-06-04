@@ -17,6 +17,9 @@ unsigned long tant = 0;         //Tiempo anterior
 unsigned int muescas = 6;       //Número de muescas que tiene el disco del encoder.
 const int diam = 23.94;         //Diámetro de la rueda pequeña[mm]
 static volatile unsigned long debounce = 0; //Tiempo del rebote.
+float T=0;
+float P=0;
+float Irms=0;
       
 void setup() {
   Serial.begin(9600);
@@ -27,8 +30,11 @@ void setup() {
   rpm = 0;
   tant = 0;
   Serial.print("Seconds ");
+  Serial.print("Corriente ");
   Serial.print("RPM ");
-  Serial.print("Pulsos  ");
+  //Serial.print("Pulsos  ");
+  Serial.print("Potencia: ");
+  Serial.print("Torque: ");
   Serial.println("vel[Km/h]");
 }
 
@@ -39,22 +45,23 @@ void loop() {
       vel = rpm * 3.141592 * diam * 60 / 1000000;               //Cálculo velocidad en [Km/h] 
       tant = millis(); // Almacenamos el tiempo actual.
       Serial.print(millis()/1000); Serial.print("       ");     //Visualizar resultados
+      Serial.print(Ip,3); Serial.print("A"); Serial.print("     ");
       Serial.print(rpm,DEC); Serial.print("   ");
-      Serial.print(pulsos ,DEC); Serial.print("     ");
+      //Serial.print(pulsos ,DEC); Serial.print("     ");
+      Serial.print(P,3); Serial.print("W") ;Serial.print("   ");
+      Serial.print(T,3); Serial.print("Nm");Serial.print("   ");
       Serial.println(vel,2); 
       pulsos  = 0;                                            //Inicializamos los pulsos.
       interrupts();                                           //Reiniciamos la interrupción
   Ip=get_corriente();                                         //obtenemos la corriente pico
-  Serial.print("Ip: ");                                       //Visualizar resultados
-  Serial.print(Ip,3);
-  Serial.println("A");
-//  float Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
-//  float P=Irms*220.0;                         // P=IV watts
-//  Serial.print(" Irms: ");
-//  Serial.print(Irms,3);
-//  Serial.print("A, Potencia: ");
-//  Serial.print(P,3);  
-//  Serial.println("W");
+  Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
+  P=Irms*120;                           //P=IV watts Voltaje utilizado por motor cambiar dependiendo del motor
+  float velang=rpm*0.10471975;                //Velocidad Angular(rad/s)=Velocidad(rpm)*2π/60
+  T=P/velang;                           //Torque(Nm)=Potencia(W)/VelocidadAngular(rad/s)
+//  Serial.print(" Irms: ");                  //Para motores de CA se calcula la potencia mecanica Pm=√3*V*I*cos(φ)
+//  Serial.print(Irms,3);                     //cos(φ) Factor de potencia del motor, representa la eficiencia del motor en la conversión de energía eléctrica en energía mecánica.
+//  Serial.print("A");                        //Velocidad angular en rad ω (rad/s)=2π*N/60 N vel en rpm
+                                              //Tca(Nm)=Pm(W)/ω(rad/s)
     oled();                                   //Función para mostrar los datos
   }     
 }
@@ -89,7 +96,7 @@ void inter(){  //------------------------------------------Funcion interrupcion
   pulsos ++;}  
 }             //------------------------------------------Fin interrupcion
 
-void oled(){  //------------------------------------------Funcion diaplay
+void oled(){  //------------------------------------------Funcion display
   u8g2.clearBuffer();                           // Borra el contenido anterior del buffer de pantalla
   u8g2.setFont( u8g2_font_6x13_tf/*u8g2_font_t0_11_mn*/);             // Selecciona fuente
   u8g2.setCursor(2, 10);                        // Establece la posición de la posición del texto
@@ -98,11 +105,14 @@ void oled(){  //------------------------------------------Funcion diaplay
     u8g2.setCursor(2, 20);                       //Posición de texto
     u8g2.print("Seconds ");
     u8g2.setCursor(70, 20); u8g2.print(millis()/1000);
-    u8g2.setCursor(2, 40);
+    u8g2.setCursor(2, 30);
     u8g2.print("RPM ");
-    u8g2.setCursor(70, 40); u8g2.print(rpm);
-    u8g2.setCursor(2, 50);
+    u8g2.setCursor(70, 30); u8g2.print(rpm);
+    u8g2.setCursor(2, 40);
     u8g2.print("Vel[Km/h]");
-    u8g2.setCursor(70, 50); u8g2.print(vel,2);
+    u8g2.setCursor(70, 40); u8g2.print(vel,2);
+        u8g2.setCursor(2, 50);
+    u8g2.print("Torque:");
+    u8g2.setCursor(70, 50); u8g2.print(T,2);
   u8g2.sendBuffer();                            //Envia contenido   
-}             //------------------------------------------Fin interrupcion
+}             //------------------------------------------Fin display
