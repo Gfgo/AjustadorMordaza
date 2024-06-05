@@ -2,14 +2,15 @@
 #include <U8g2lib.h>
 #include <Arduino.h>
 #include <Wire.h>
-//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=22*/ 13, /* data=21*/ 18, /* reset=*/ U8X8_PIN_NONE); //esp32
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);    //ardu
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/18 /*13*/, /* data=*/21 /*18*/, /* reset=*/ U8X8_PIN_NONE); //esp32
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);    //ardu
 
 float Ip=0;
 float sensibilidad=0.105;                       //sensibilidad en V/A para sensor (0.105)  5A 0.185/20A 0.100/30A 0.66
 float offset=0.136;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
                                                 // calibracion base 0.176
-int encoder = 2;                //Pin 2, donde se conecta el encoder       
+byte encoder = 34;               //Pin 2, donde se conecta el encoder
+byte seni=32;                   //Pin A0, sensor de corriente
 unsigned int rpm = 0;           //Revoluciones por minuto calculadas.
 float vel = 0;                  //Velocidad en [Km/h]
 volatile int pulsos  = 0;       //Número de pulsos leidos por el Arduino en un segundo
@@ -54,10 +55,10 @@ void loop() {
       pulsos  = 0;                                            //Inicializamos los pulsos.
       interrupts();                                           //Reiniciamos la interrupción
   Ip=get_corriente();                                         //obtenemos la corriente pico
-  Irms=Ip*0.707;                        //Intensidad RMS = Ipico/(2^1/2)
-  P=Irms*120;                           //P=IV watts Voltaje utilizado por motor cambiar dependiendo del motor
+  Irms=Ip*0.707;                              //Intensidad RMS = Ipico/(2^1/2)
+  P=Irms*120;                                 //P=IV watts Voltaje utilizado por motor cambiar dependiendo del motor
   float velang=rpm*0.10471975;                //Velocidad Angular(rad/s)=Velocidad(rpm)*2π/60
-  T=P/velang;                           //Torque(Nm)=Potencia(W)/VelocidadAngular(rad/s)
+  T=P/velang;                                 //Torque(Nm)=Potencia(W)/VelocidadAngular(rad/s)
 //  Serial.print(" Irms: ");                  //Para motores de CA se calcula la potencia mecanica Pm=√3*V*I*cos(φ)
 //  Serial.print(Irms,3);                     //cos(φ) Factor de potencia del motor, representa la eficiencia del motor en la conversión de energía eléctrica en energía mecánica.
 //  Serial.print("A");                        //Velocidad angular en rad ω (rad/s)=2π*N/60 N vel en rpm
