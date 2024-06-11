@@ -2,15 +2,16 @@
 #include <U8g2lib.h>
 #include <Arduino.h>
 #include <Wire.h>
+#define seni 32
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/18 /*13*/, /* data=*/21 /*18*/, /* reset=*/ U8X8_PIN_NONE); //esp32
 //U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);    //ardu
 
 float Ip=0;
-float sensibilidad=0.105;                       //sensibilidad en V/A para sensor (0.105)  5A 0.185/20A 0.100/30A 0.66
-float offset=0.136;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
-                                                // calibracion base 0.176
-byte encoder = 34;               //Pin 2, donde se conecta el encoder
-byte seni=32;                   //Pin A0, sensor de corriente
+float sensibilidad=2.9;                       //sensibilidad en V/A para sensor (0.105)  (5A 0.185)/(20A 0.100)/(30A 0.66)
+float offset=0.148;                             // Equivale a la amplitud del ruido 0v 0a ---0.165  9v 0.04a ---0.186
+                                                // calibracion base 0.176 calibracion calculada 0.136
+byte encoder = 34;               //Pin 2ardu , donde se conecta el encoder
+//float seni=32;                   //Pin A0, sensor de corriente
 unsigned int rpm = 0;           //Revoluciones por minuto calculadas.
 float vel = 0;                  //Velocidad en [Km/h]
 volatile int pulsos  = 0;       //Número de pulsos leidos por el Arduino en un segundo
@@ -54,7 +55,8 @@ void loop() {
       Serial.println(vel,2); 
       pulsos  = 0;                                            //Inicializamos los pulsos.
       interrupts();                                           //Reiniciamos la interrupción
-  Ip=get_corriente();                                         //obtenemos la corriente pico
+  if (get_corriente()<=0){Ip=0.00;}
+      else {Ip=get_corriente();}                                         //obtenemos la corriente pico
   Irms=Ip*0.707;                              //Intensidad RMS = Ipico/(2^1/2)
   P=Irms*120;                                 //P=IV watts Voltaje utilizado por motor cambiar dependiendo del motor
   float velang=rpm*0.10471975;                //Velocidad Angular(rad/s)=Velocidad(rpm)*2π/60
@@ -77,7 +79,7 @@ float get_corriente() {     //-------------------------------Funcion leo corrien
   float Imint=0;
   while(millis()-tiempo<500)  {                  //realizamos mediciones durante 0.5 segundos
     for(int i=0;i<500;i++); {                    //se promedian 500 mediciones
-    voltajesensor = analogRead(A0) * (5.0 / 1023.0);                          //lectura del sensor
+    voltajesensor = analogRead(seni)*(5.0/4096.0);                            //lectura del sensor (voltaje de trabajo del sensor/resolucion adc 1023Ardu/4096esp)
     corriente=0.9*corriente+0.1*((voltajesensor-2.527)/sensibilidad);         //Ecuación  para obtener la corriente
       if(corriente>Imax){Imax=corriente;
       Imaxt+=Imax;}
@@ -117,3 +119,40 @@ void oled(){  //------------------------------------------Funcion display
     u8g2.setCursor(70, 50); u8g2.print(T,2);
   u8g2.sendBuffer();                            //Envia contenido   
 }             //------------------------------------------Fin display
+
+//////////////////////////
+//#define seni 25   
+//float Sensibilidad=0.100; //sensibilidad en Voltios/Amperio para sensor de 5A
+//float offset=0.136;  
+//
+//void setup() {
+//  
+//  Serial.begin(9600);
+//}
+//
+//void loop() {
+//  
+//  float I=get_corriente(500);//obtenemos la corriente promedio de 500 muestras 
+////  Serial.print("Corriente: ");
+////  Serial.println(I,3); 
+//  delay(500);     
+//}
+//
+//float get_corriente(int n_muestras)
+//{
+//  float voltajeSensor;
+//  float corriente=0;
+//  for(int i=0;i<n_muestras;i++)
+//  {
+//    voltajeSensor = (analogRead(seni) * (5.0 / 4095.0));////lectura del sensor
+//    corriente=((0.9*corriente)+(0.1*+(voltajeSensor-2.5)/Sensibilidad))-offset; //Ecuación  para obtener la corriente
+//  }
+//  corriente=corriente/n_muestras;
+//  Serial.print("salida sen ");
+//  Serial.println(analogRead(seni));
+//  Serial.print("voltaje sen ");
+//  Serial.println(voltajeSensor);
+//  Serial.print("corr "); 
+//  Serial.println(corriente);
+//  return(corriente);
+//}
