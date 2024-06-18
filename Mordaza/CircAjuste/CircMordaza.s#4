@@ -1549,8 +1549,11 @@ Source: http://eshop.phoenixcontact.de .. 1733415.pdf</description>
 <pinref part="ACS712" gate="A" pin="2"/>
 <wire x1="-10.16" y1="10.16" x2="-20.32" y2="10.16" width="0.1524" layer="91"/>
 <label x="-20.32" y="10.16" size="1.4224" layer="95" rot="R180" xref="yes"/>
-<label x="-20.32" y="10.16" size="1.4224" layer="95" rot="R180" xref="yes"/>
-<label x="15.24" y="5.08" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U$1" gate="G$1" pin="GPIO33(ADC1_5)"/>
+<wire x1="12.7" y1="5.08" x2="15.24" y2="5.08" width="0.1524" layer="91"/>
+<label x="12.7" y="5.08" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SCK" class="0">
@@ -1558,6 +1561,10 @@ Source: http://eshop.phoenixcontact.de .. 1733415.pdf</description>
 <pinref part="OLED" gate="A" pin="3"/>
 <wire x1="-10.16" y1="-12.7" x2="-22.86" y2="-12.7" width="0.1524" layer="91"/>
 <label x="-22.86" y="-12.7" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U$1" gate="G$1" pin="GPIO18(VSPI-SCK)"/>
+<wire x1="81.28" y1="2.54" x2="86.36" y2="2.54" width="0.1524" layer="91"/>
 <label x="86.36" y="2.54" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
@@ -1566,6 +1573,10 @@ Source: http://eshop.phoenixcontact.de .. 1733415.pdf</description>
 <pinref part="OLED" gate="A" pin="4"/>
 <wire x1="-10.16" y1="-15.24" x2="-22.86" y2="-15.24" width="0.1524" layer="91"/>
 <label x="-22.86" y="-15.24" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U$1" gate="G$1" pin="GPIO21(WIRE-SDA)"/>
+<wire x1="81.28" y1="10.16" x2="86.36" y2="10.16" width="0.1524" layer="91"/>
 <label x="86.36" y="10.16" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
@@ -1574,7 +1585,11 @@ Source: http://eshop.phoenixcontact.de .. 1733415.pdf</description>
 <pinref part="FC-03" gate="A" pin="3"/>
 <wire x1="-10.16" y1="-33.02" x2="-22.86" y2="-33.02" width="0.1524" layer="91"/>
 <label x="-22.86" y="-33.02" size="1.4224" layer="95" rot="R180" xref="yes"/>
-<label x="15.24" y="12.7" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U$1" gate="G$1" pin="GPIO34(ADC1_6)"/>
+<wire x1="12.7" y1="12.7" x2="15.24" y2="12.7" width="0.1524" layer="91"/>
+<label x="12.7" y="12.7" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="M+" class="0">
@@ -1603,18 +1618,6 @@ Source: http://eshop.phoenixcontact.de .. 1733415.pdf</description>
 <pinref part="JP4" gate="A" pin="4"/>
 <wire x1="-10.16" y1="27.94" x2="-5.08" y2="27.94" width="0.1524" layer="91"/>
 <label x="-5.08" y="27.94" size="1.4224" layer="95" xref="yes"/>
-</segment>
-</net>
-<net name="N$1" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="GPIO21(WIRE-SDA)"/>
-<wire x1="81.28" y1="10.16" x2="86.36" y2="10.16" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$2" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="GPIO18(VSPI-SCK)"/>
-<wire x1="81.28" y1="2.54" x2="86.36" y2="2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>

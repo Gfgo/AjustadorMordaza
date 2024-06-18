@@ -69,7 +69,7 @@ void loop() {
   }     
 }
 
-float get_corriente() {     //-------------------------------Funcion leo corriente
+float get_corriente() {     //-------------------------------Funcion lectura de corriente
   float voltajesensor;
   float corriente=0;
   long tiempo=millis();
@@ -99,7 +99,7 @@ void inter(){  //------------------------------------------Funcion interrupcion
   pulsos ++;}  
 }             //------------------------------------------Fin interrupcion
 
-void oled(){  //------------------------------------------Funcion display
+void oled(){  //------------------------------------------Funcion muestra en oled
   u8g2.clearBuffer();                           // Borra el contenido anterior del buffer de pantalla
   u8g2.setFont( u8g2_font_6x13_tf/*u8g2_font_t0_11_mn*/);             // Selecciona fuente
   u8g2.setCursor(2, 10);                        // Establece la posición de la posición del texto
